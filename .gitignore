@@ -1,2 +1,12 @@
+# Mac OS X
+.DS_Store
+# node.js modules
 node_modules/
-
+# postgres
+postgres/
+# terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+terraform/.terraform.tfstate.lock.info
+terraform/plan
