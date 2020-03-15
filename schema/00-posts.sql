@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS posts(
+  post_id SERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT CLOCK_TIMESTAMP()
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS posts_title_idx ON posts (title);

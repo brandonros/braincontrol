@@ -1,0 +1,13 @@
+{
+  "name": "api",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "ISC",
+  "scripts": {},
+  "dependencies": {
+    "express": "^4.17.1",
+    "pg": "^7.18.2",
+    "sql-template-strings": "^2.2.2"
+  },
+  "devDependencies": {}
+}
