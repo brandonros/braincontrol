@@ -1,19 +1,18 @@
 const express = require('express')
-const fetch = require('node-fetch')
 const { renderTemplate } = require('./lib/templating.js')
-const { fetchJson } = requrie('./lib/api.js')
+const { fetchJson } = require('./lib/api.js')
 
 const renderIndex = async () => {
   const model = {
-    posts: await fetchJson(`${process.env.API_URL}/posts`)
+    posts: await fetchJson(`${process.env.API_URL}/api/posts`)
   }
   return renderTemplate('/index.ejs', model)
 }
 
 const renderPost = async (postId) => {
   const model = {
-    post: await fetchJson(`${process.env.API_URL}/post/${postId}`),
-    postNodes: post: await fetchJson(`${process.env.API_URL}/post/${postId}/nodes`)
+    post: await fetchJson(`${process.env.API_URL}/api/post/${postId}`),
+    postNodes: await fetchJson(`${process.env.API_URL}/api/post/${postId}/nodes`)
   }
   return renderTemplate('/post.ejs', model)
 }

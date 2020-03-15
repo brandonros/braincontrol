@@ -20,5 +20,31 @@
         <% }) %>
       </tbody>
     </table>
+
+    <label>title</label><br>
+    <input type="text" id="title"><br>
+    <label>content</label><br>
+    <textarea id="content"></textarea><br>
+    <button id="submit">submit</button>
+
+    <script type="text/javascript">
+      document.querySelector('#submit').addEventListener('click', async (event) => {
+        const response = await fetch(`/api/posts`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            title,
+            content
+          })
+        })
+        if (response.status !== 200) {
+          throw new Error(`Invalid response status: ${repsonse.status}`)
+        }
+        const responseBody = await response.json()
+        window.location = `/posts/${postId}`
+      })
+    </script>
   </body>
 </html>

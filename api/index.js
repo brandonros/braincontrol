@@ -6,24 +6,33 @@ const getPosts = async () => {
   return queryDatabase(SQL`SELECT post_id, title, created_at FROM posts`)
 }
 
-const upsertPost = async (title, content) => {
-  const [post] = await queryDatabase(SQL`INSERT INTO posts(title, content)
-    VALUES (${title}, ${content})
-    ON CONFLICT DO
-    UPDATE posts
-    SET content = ${content}
-    WHERE title = ${title}
-    RETURNING post_id`)
-  await queryDatabase(SQL`DELETE FROM post_nodes WHERE post_id = ${post.post_id}`)
+const updatePostNodes = async (postId, content) => {
+  await queryDatabase(SQL`DELETE FROM post_nodes WHERE post_id = ${postId}`)
   const nodesPattern = /(\[\[.*\]\])/g
   const nodes = content.match(nodesPattern)
   if (nodes) {
     for (let i = 0; i < nodes.length; ++i) {
       const nodeName = nodes[i]
       const [node] = await queryDatabase(SQL`INSERT INTO nodes(name) VALUES(${nodeName}) ON CONFLICT DO NOTHING RETURNING node_id`)
-      await queryDatabase(SQL`INSERT INTO post_nodes(post_id, node_id) VALUES(${post.post_id}, ${node.node_id})`)
+      await queryDatabase(SQL`INSERT INTO post_nodes(post_id, node_id) VALUES(${postId}, ${node.node_id})`)
     }
   }
+}
+
+const updatePost = async (postId, title, content) => {
+  await queryDatabase(SQL`UPDATE posts
+    SET content = ${content},
+      title = ${title}
+    WHERE post_id = ${postId}`)
+  await queryDatabase(SQL`DELETE FROM post_nodes WHERE post_id = ${postId}`)
+  await updatePostNodes(postId, content)
+}
+
+const insertPost = async (title, content) => {
+  const [post] = await queryDatabase(SQL`INSERT INTO posts(title, content) VALUES(${title}, ${content})
+    RETURNING post_id`)
+  await updatePostNodes(post.post_id, content)
+  return post.post_id
 }
 
 const getPost = async (postId) => {
@@ -46,8 +55,13 @@ app.get('/posts', (req, res) => {
   .then((posts) => res.send(posts))
   .catch((err) => res.status(500).send({ error: err.stack }))
 })
+app.post('/posts', (req, res) => {
+  insertPost(req.body.title, req.body.content)
+  .then((postId) => res.send({ postId }))
+  .catch((err) => res.status(500).send({ error: err.stack }))
+})
 app.put('/posts/:postId', (req, res) => {
-  upsertPost(req.params.postId, req.body.content)
+  updatePost(req.params.postId, req.body.title, req.body.content)
   .then(() => res.status(204).end())
   .catch((err) => res.status(500).send({ error: err.stack }))
 })
