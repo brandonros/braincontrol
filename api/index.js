@@ -42,7 +42,7 @@ const getPost = async (postId) => {
 
 const getPostNodes = async (postId) => {
   return queryDatabase(SQL`SELECT nodes.node_id,
-           nodes.name
+      nodes.name
     FROM post_nodes
     JOIN nodes ON nodes.node_id = post_nodes.node_id
     WHERE post_nodes.post_id = ${postId}`)

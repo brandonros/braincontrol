@@ -11,8 +11,8 @@ const renderIndex = async () => {
 
 const renderPost = async (postId) => {
   const model = {
-    post: await fetchJson(`${process.env.API_URL}/api/post/${postId}`),
-    postNodes: await fetchJson(`${process.env.API_URL}/api/post/${postId}/nodes`)
+    post: await fetchJson(`${process.env.API_URL}/api/posts/${postId}`),
+    postNodes: await fetchJson(`${process.env.API_URL}/api/posts/${postId}/nodes`)
   }
   return renderTemplate('/post.ejs', model)
 }

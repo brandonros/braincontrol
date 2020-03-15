@@ -29,8 +29,10 @@
 
     <script type="text/javascript">
       document.querySelector('#submit').addEventListener('click', async (event) => {
+        const title = document.querySelector('#title').value
+        const content = document.querySelector('#content').value
         const response = await fetch(`/api/posts`, {
-          method: 'PUT',
+          method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
@@ -40,10 +42,10 @@
           })
         })
         if (response.status !== 200) {
-          throw new Error(`Invalid response status: ${repsonse.status}`)
+          throw new Error(`Invalid response status: ${response.status}`)
         }
         const responseBody = await response.json()
-        window.location = `/posts/${postId}`
+        window.location = `/posts/${responseBody.postId}`
       })
     </script>
   </body>
