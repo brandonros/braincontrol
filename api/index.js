@@ -1,20 +1,9 @@
 const express = require('express')
 const SQL = require('sql-template-strings')
-const pg = require('pg')
+const { queryDatabase } = require('./lib/database.js')
 
-const databaseQuery = async (sqlStatement) => {
-  const client = new pg.Client({
-    connectionString: process.env.DATABASE_URL
-  })
-  await client.connect()
-  try {
-    const { rows } = await client.query(sqlStatement.text, sqlStatement.values)
-    return rows
-  } catch (err) {
-    throw err
-  } finally {
-    await client.end()
-  }
+const getPosts = async () => {
+  return queryDatabase(SQL`SELECT post_id, title, created_at FROM posts`)
 }
 
 const upsertPost = async (title, content) => {
@@ -37,34 +26,38 @@ const upsertPost = async (title, content) => {
   }
 }
 
-const getPost = async (title) => {
-  const [post] = await queryDatabase(SQL`SELECT post_id, title, content, created_at FROM posts WHERE title = ${title}`)
+const getPost = async (postId) => {
+  const [post] = await queryDatabase(SQL`SELECT post_id, title, content, created_at FROM posts WHERE post_id = ${postId}`)
   return post
 }
 
-const getPostNodes = async (title) => {
+const getPostNodes = async (postId) => {
   return queryDatabase(SQL`SELECT nodes.node_id,
            nodes.name
     FROM post_nodes
-    JOIN posts ON posts.post_id = post_nodes.post_id
     JOIN nodes ON nodes.node_id = post_nodes.node_id
-    WHERE posts.title = ${title}`)
+    WHERE post_nodes.post_id = ${postId}`)
 }
 
 const app = express()
 app.use(express.json())
-app.put('/posts/:title', (req, res) => {
-  upsertPost(req.params.title, req.body.content)
+app.get('/posts', (req, res) => {
+  getPosts()
+  .then((posts) => res.send(posts))
+  .catch((err) => res.status(500).send({ error: err.stack }))
+})
+app.put('/posts/:postId', (req, res) => {
+  upsertPost(req.params.postId, req.body.content)
   .then(() => res.status(204).end())
   .catch((err) => res.status(500).send({ error: err.stack }))
 })
-app.get('/posts/:title', (req, res) => {
-  getPost(req.params.title)
+app.get('/posts/:postId', (req, res) => {
+  getPost(req.params.postId)
   .then((post) => res.send(post))
   .catch((err) => res.status(500).send({ error: err.stack }))
 })
-app.get('/posts/:title/nodes', (req, res) => {
-  getPostNodes(req.params.title)
+app.get('/posts/:postId/nodes', (req, res) => {
+  getPostNodes(req.params.postId)
   .then((postNodes) => res.send(getPostNodes))
   .catch((err) => res.status(500).send({ error: err.stack }))
 })
