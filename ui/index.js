@@ -17,6 +17,14 @@ const renderPost = async (postId) => {
   return renderTemplate('/post.ejs', model)
 }
 
+const renderNode = async (nodeId) => {
+  const model = {
+    node: await fetchJson(`${process.env.API_URL}/api/nodes/${nodeId}`),
+    posts: await fetchJson(`${process.env.API_URL}/api/nodes/${nodeId}/posts`)
+  }
+  return renderTemplate('/node.ejs', model)
+}
+
 const app = express()
 app.get('/', (req, res) => {
   renderIndex()
@@ -25,6 +33,11 @@ app.get('/', (req, res) => {
 })
 app.get('/posts/:postId', (req, res) => {
   renderPost(req.params.postId)
+  .then((output) => res.send(output))
+  .catch((err) => res.status(500).send(err.stack))
+})
+app.get('/nodes/:nodeId', (req, res) => {
+  renderNode(req.params.nodeId)
   .then((output) => res.send(output))
   .catch((err) => res.status(500).send(err.stack))
 })

@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+  <head>
+    <title>brainpower - Wiki with support for bi-directional nodes through Markdown links</title>
+  </head>
+  <body>
+    <label><%- post.title %></label><br>
+    <pre><%- post.content %></pre><br>
+    <label>created at: <%- post.created_at %></label><br>
+
+    <table id="postNodes">
+      <thead>
+        <tr>
+          <th>Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% postNodes.forEach((postNode) => { %>
+          <tr>
+            <td><a href="/nodes/<%- postNode.node_id %>"><%- postNode.name %></a></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <label>title</label><br>
+    <input type="text" id="title" value="<%- post.title %>"><br>
+    <label>content</label><br>
+    <textarea rows="80" cols="25" id="content"><%- post.content %></textarea><br>
+    <button id="submit">submit</button>
+
+    <script type="text/javascript">
+      const postId = <%- post.post_id %>
+      document.querySelector('#submit').addEventListener('click', async (event) => {
+        const title = document.querySelector('#title').value
+        const content = document.querySelector('#content').value
+        const response = await fetch(`/api/posts/${postId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            title,
+            content
+          })
+        })
+        if (response.status !== 204) {
+          throw new Error(`Invalid response status: ${response.status}`)
+        }
+        window.location = `/posts/${postId}`
+      })
+    </script>
+  </body>
+</html>

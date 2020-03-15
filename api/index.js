@@ -40,12 +40,26 @@ const getPost = async (postId) => {
   return post
 }
 
+const getNode = async (nodeId) => {
+  const [node] = await queryDatabase(SQL`SELECT node_id, name  FROM nodes WHERE node_id = ${nodeId}`)
+  return node
+}
+
 const getPostNodes = async (postId) => {
   return queryDatabase(SQL`SELECT nodes.node_id,
       nodes.name
     FROM post_nodes
     JOIN nodes ON nodes.node_id = post_nodes.node_id
     WHERE post_nodes.post_id = ${postId}`)
+}
+
+const getNodePosts = async (nodeId) => {
+  return queryDatabase(SQL`SELECT posts.post_id,
+      posts.title,
+      posts.created_at
+    FROM post_nodes
+    JOIN posts ON posts.post_id = post_nodes.post_id
+    WHERE post_nodes.node_id = ${nodeId}`)
 }
 
 const app = express()
@@ -72,7 +86,17 @@ app.get('/posts/:postId', (req, res) => {
 })
 app.get('/posts/:postId/nodes', (req, res) => {
   getPostNodes(req.params.postId)
-  .then((postNodes) => res.send(getPostNodes))
+  .then((postNodes) => res.send(postNodes))
+  .catch((err) => res.status(500).send({ error: err.stack }))
+})
+app.get('/nodes/:nodeId/posts', (req, res) => {
+  getNodePosts(req.params.nodeId)
+  .then((postNodes) => res.send(postNodes))
+  .catch((err) => res.status(500).send({ error: err.stack }))
+})
+app.get('/nodes/:nodeId', (req, res) => {
+  getNode(req.params.nodeId)
+  .then((postNodes) => res.send(postNodes))
   .catch((err) => res.status(500).send({ error: err.stack }))
 })
 app.listen(process.env.PORT, () => console.log('Listening...'))
