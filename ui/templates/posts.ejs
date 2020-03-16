@@ -4,6 +4,10 @@
     <title>brainpower - Wiki with support for bi-directional nodes through Markdown links</title>
   </head>
   <body>
+    <a href="/">posts</a> | <a href="/nodes">nodes</a><br>
+
+    <h1>posts</h1>
+
     <table id="posts">
       <thead>
         <tr>
@@ -21,10 +25,12 @@
       </tbody>
     </table>
 
+    <h2>create post</h2>
+
     <label>title</label><br>
     <input type="text" id="title"><br>
     <label>content</label><br>
-    <textarea cols="25" rows="80" id="content"></textarea><br>
+    <textarea cols="80" rows="25" id="content"></textarea><br>
     <button id="submit">submit</button>
 
     <script type="text/javascript">

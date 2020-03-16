@@ -6,22 +6,18 @@
   <body>
     <a href="/">posts</a> | <a href="/nodes">nodes</a><br>
 
-    <h1>node: <%- node.name %></h1><br>
+    <h1>nodes</h1>
 
-    <h2>posts</h2>
-
-    <table id="posts">
+    <table id="nodes">
       <thead>
         <tr>
-          <th>Title</th>
-          <th>Created at</th>
+          <th>Name</th>
         </tr>
       </thead>
       <tbody>
-        <% posts.forEach((post) => { %>
+        <% nodes.forEach((node) => { %>
           <tr>
-            <td><a href="/posts/<%- post.post_id %>"><%- post.title %></a></td>
-            <td><%- post.created_at %></td>
+            <td><a href="/nodes/<%- node.node_id %>"><%- node.name %></a></td>
           </tr>
         <% }) %>
       </tbody>

@@ -2,11 +2,18 @@ const express = require('express')
 const { renderTemplate } = require('./lib/templating.js')
 const { fetchJson } = require('./lib/api.js')
 
-const renderIndex = async () => {
+const renderPosts = async () => {
   const model = {
     posts: await fetchJson(`${process.env.API_URL}/api/posts`)
   }
-  return renderTemplate('/index.ejs', model)
+  return renderTemplate('/posts.ejs', model)
+}
+
+const renderNodes = async () => {
+  const model = {
+    nodes: await fetchJson(`${process.env.API_URL}/api/nodes`)
+  }
+  return renderTemplate('/nodes.ejs', model)
 }
 
 const renderPost = async (postId) => {
@@ -27,7 +34,12 @@ const renderNode = async (nodeId) => {
 
 const app = express()
 app.get('/', (req, res) => {
-  renderIndex()
+  renderPosts()
+  .then((output) => res.send(output))
+  .catch((err) => res.status(500).send(err.stack))
+})
+app.get('/nodes', (req, res) => {
+  renderNodes()
   .then((output) => res.send(output))
   .catch((err) => res.status(500).send(err.stack))
 })

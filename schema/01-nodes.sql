@@ -3,3 +3,5 @@ CREATE TABLE IF NOT EXISTS nodes(
   name TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT CLOCK_TIMESTAMP()
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS nodes_name_idx ON nodes (name);

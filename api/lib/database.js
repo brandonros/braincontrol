@@ -21,6 +21,28 @@ const queryDatabase = async (sqlStatement) => {
   }
 }
 
+const databaseTransaction = async (cb) => {
+  const connection = await pool.connect()
+  try {
+    await connection.query('BEGIN')
+    const wrappedConnection = {
+      query: async (sqlStatement) => {
+        const { rows } = await connection.query(sqlStatement.text, sqlStatement.values)
+        return rows
+      }
+    }
+    const result = await cb(wrappedConnection)
+    await connection.query('COMMIT')
+    return result
+  } catch (err) {
+    await connection.query('ROLLBACK')
+    throw err
+  } finally {
+    connection.release()
+  }
+}
+
 module.exports = {
-  queryDatabase
+  queryDatabase,
+  databaseTransaction
 }
