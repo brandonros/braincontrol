@@ -2,7 +2,7 @@ const pg = require('pg')
 
 let pool = null
 
-const queryDatabase = async (sqlStatement) => {
+const initDatabase = () => {
   if (!pool) {
     pool = new pg.Pool({
       host: process.env.PGBOUNCER_HOST,
@@ -12,6 +12,10 @@ const queryDatabase = async (sqlStatement) => {
       password: process.env.POSTGRES_PASSWORD
     })
   }
+}
+
+const queryDatabase = async (sqlStatement) => {
+  initDatabase()
   const connection = await pool.connect()
   try {
     const { rows } = await connection.query(sqlStatement.text, sqlStatement.values)
@@ -22,6 +26,7 @@ const queryDatabase = async (sqlStatement) => {
 }
 
 const databaseTransaction = async (cb) => {
+  initDatabase()
   const connection = await pool.connect()
   try {
     await connection.query('BEGIN')
